@@ -62,14 +62,12 @@ $(OBJDIR)%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
 
 %.d: %.c
-	@set -e; \
-	$(RM) $@; \
-	$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $< >$@.tmp; \
-	$(SED) 's,\($*\)\.o[ :]*,$$(OBJDIR)\1.o $@: ,g' <$@.tmp >$@; \
-	$(RM) $@.tmp
+	@$(CC) -MM $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) $< -o $@
+	@$(SED) -i.bak 's,\($*\)\.o[ :]*,$$(OBJDIR)\1.o $@: ,g' $@
+	@$(RM) $@.bak
 
 html_unescape.h: html_unescape.gperf
-	$(GPERF) -t -N find_entity -H hash_entity -K entity -C -l --null-strings -m100 $< >$@
+	$(GPERF) -t -N find_entity -H hash_entity -K entity -C -l --null-strings -m100 $< --output-file=$@
 
 clean:
 	$(RM) $(SLIB) $(OBJS) $(DEPS)
